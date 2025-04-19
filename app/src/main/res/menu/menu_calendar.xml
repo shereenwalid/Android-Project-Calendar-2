@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add_event"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Add Event"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_view_events"
+        android:icon="@drawable/ic_launcher_background"
+        android:title="View Events"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/action_filter_events"
+                android:title="Filter Events" />
+            <item
+                android:id="@+id/action_sort_events"
+                android:title="Sort Events" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_launcher_foreground"
+        android:title="Calendar"
+        app:showAsAction="never" />
+
+</menu>

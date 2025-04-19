@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:padding="16dp">
+
+<EditText
+    android:id="@+id/eventTitle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:textSize="16sp"
+    android:padding="12dp"
+    android:hint="@string/event_title"
+    android:inputType="text" />
+
+<EditText
+    android:id="@+id/eventDescription"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:textSize="16sp"
+    android:padding="12dp"
+    android:hint="@string/event_description"
+    android:inputType="text" />
+
+<TimePicker
+    android:id="@+id/timePicker"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:timePickerMode="spinner" />
+
+<RadioGroup
+    android:id="@+id/radio_group_priority"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <RadioButton
+        android:id="@+id/radio_low"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Low"
+        android:padding="16dp"
+        android:textSize="16sp" />
+
+    <RadioButton
+        android:id="@+id/radio_medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Medium"
+        android:padding="16dp"
+        android:textSize="16sp" />
+
+    <RadioButton
+        android:id="@+id/radio_high"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="High"
+        android:padding="16dp"
+        android:textSize="16sp" />
+</RadioGroup>
+
+<Button
+    android:id="@+id/btnSave"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/save_event"
+    android:layout_marginTop="16dp" />
+    <Button
+        android:id="@+id/btn_back_home_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Go to Home"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"/>
+
+
+</LinearLayout>

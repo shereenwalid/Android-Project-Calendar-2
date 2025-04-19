@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/popup_add_event"
+        android:title="Add Event" />
+    <item
+        android:id="@+id/popup_view_event"
+        android:title="View Event" />
+</menu>

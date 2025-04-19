@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Daily Calendar</string>
+    <string name="event_description">Event Description</string>
+    <string name="event_title">Event Title</string>
+    <string name="save_event">Save Event</string>
+
+        <string-array name="view_array">
+            <item>Day</item>
+            <item>Week</item>
+            <item>Month</item>
+        </string-array>
+
+
+</resources>

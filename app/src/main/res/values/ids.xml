@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+        <item name="action_add_event" type="id"></item>
+        <item name="action_view_events" type="id"></item>
+        <item name="action_settings" type="id"></item>
+        <item name="event_text_view" type="id"></item>
+        <item name="popup_button" type="id"></item>
+        <item name="btn_back_home_2" type="id"></item>
+</resources>
