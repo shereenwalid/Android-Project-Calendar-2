@@ -1,7 +1,12 @@
 package com.example.dailycalendar;
 
+import android.content.ContentResolver;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private TextView selectedDate;
     private String currentDate;
+    private static final int REQUEST_CODE_ATTACHMENT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
         // Check for layout extra and set the appropriate layout
         Intent intent = getIntent();
         String layout = intent.getStringExtra("layout");
-
 
         if ("dialog_add_event".equals(layout)) {
             setContentView(R.layout.dialog_add_event);
@@ -52,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
             setupMainActivityViews();
         }
-
-
     }
 
     private void setupMainActivityViews() {
@@ -113,10 +116,14 @@ public class MainActivity extends AppCompatActivity {
         final TimePicker timePicker = view.findViewById(R.id.timePicker);
         Button saveButton = view.findViewById(R.id.btnSave);
         Button backHomeButton = view.findViewById(R.id.btn_back_home_3);
+        Button btnAttach = view.findViewById(R.id.btnAttach);
+        TextView tvFileName = view.findViewById(R.id.tvFileName);
 
         timePicker.setIs24HourView(true);
 
         AlertDialog dialog = builder.create();
+
+        btnAttach.setOnClickListener(v -> openFilePicker(tvFileName));
 
         saveButton.setOnClickListener(v -> {
             String title = eventTitle.getText().toString().trim();
@@ -126,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
             String time = String.format("%02d:%02d", hour, minute);
 
             if (!title.isEmpty()) {
-                if (dbHelper.addEvent(title, description + " at " + time, currentDate)) {
+                String filePath = tvFileName.getText().toString();
+                if (dbHelper.addEvent(title, description + " at " + time, currentDate, filePath)) {
                     Toast.makeText(this, "Event Added", Toast.LENGTH_SHORT).show();
                     eventList.clear();
                     eventList.addAll(dbHelper.getEventsByDate(currentDate));
@@ -167,5 +175,45 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             });
         }
+    }
+
+    // Method to open the file picker
+    private void openFilePicker(TextView tvFileName) {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");  // Accept any file type
+        startActivityForResult(intent, REQUEST_CODE_ATTACHMENT);
+    }
+
+    // Handle the file selection result
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_ATTACHMENT && resultCode == RESULT_OK && data != null) {
+            Uri selectedUri = data.getData();  // Get the URI of the selected file
+
+            if (selectedUri != null) {
+                String fileName = getFileNameFromUri(selectedUri);
+                // Display the file name in the TextView
+                TextView tvFileName = findViewById(R.id.tvFileName);
+                tvFileName.setText("Selected file: " + fileName);
+            }
+        }
+    }
+
+    // Method to extract the file name from the URI
+    private String getFileNameFromUri(Uri uri) {
+        String fileName = null;
+
+        // Get the file name from the URI
+        if (uri != null) {
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                fileName = cursor.getString(columnIndex);
+                cursor.close();
+            }
+        }
+        return fileName;
     }
 }
