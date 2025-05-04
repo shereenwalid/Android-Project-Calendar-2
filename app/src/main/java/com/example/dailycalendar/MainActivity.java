@@ -79,7 +79,18 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         eventList = dbHelper.getEventsByDate(currentDate);
-        adapter = new EventAdapter(eventList);
+        adapter = new EventAdapter(eventList, new EventAdapter.OnEventActionListener() {
+            @Override
+            public void onUpdate(Event event) {
+                showUpdateDialog(event);
+            }
+
+            @Override
+            public void onDelete(Event event) {
+                new EventManager(MainActivity.this).deleteEvent(event.getId());
+                refreshEvents();
+            }
+        });
         recyclerView.setAdapter(adapter);
 
         Button addButton = findViewById(R.id.btnAddEvent);
@@ -89,6 +100,39 @@ public class MainActivity extends AppCompatActivity {
             Intent calendarIntent = new Intent(MainActivity.this, CalendarActivity.class);
             startActivity(calendarIntent);
         });
+    }
+
+    private void showUpdateDialog(Event event) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.dialog_add_event, null);
+        builder.setView(view);
+
+        final EditText eventTitle = view.findViewById(R.id.eventTitle);
+        final EditText eventDescription = view.findViewById(R.id.eventDescription);
+        final TimePicker timePicker = view.findViewById(R.id.timePicker);
+        Button saveButton = view.findViewById(R.id.btnSave);
+
+        eventTitle.setText(event.getTitle());
+        eventDescription.setText(event.getDescription());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        saveButton.setOnClickListener(v -> {
+            String newTitle = eventTitle.getText().toString();
+            String newDesc = eventDescription.getText().toString();
+            String newTime = String.format("%02d:%02d", timePicker.getHour(), timePicker.getMinute());
+
+            new EventManager(this).updateEvent(event.getId(), newTitle, newDesc + " at " + newTime, event.getDate());
+            dialog.dismiss();
+            refreshEvents();
+        });
+    }
+
+    private void refreshEvents() {
+        eventList.clear();
+        eventList.addAll(dbHelper.getEventsByDate(currentDate));
+        adapter.notifyDataSetChanged();
     }
 
     private void setupCalendarSelection() {
