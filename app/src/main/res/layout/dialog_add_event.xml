@@ -77,5 +77,19 @@ android:padding="16dp">
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"/>
 
+    <Button
+        android:id="@+id/btnAttach"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Attach document" />
+
+    <TextView
+        android:id="@+id/tvFileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
 
 </LinearLayout>

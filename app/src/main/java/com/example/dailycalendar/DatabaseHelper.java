@@ -31,7 +31,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_TITLE + " TEXT, " +
                 COLUMN_DESCRIPTION + " TEXT, " +
-                COLUMN_DATE + " TEXT)";
+                COLUMN_DATE + " TEXT, " +
+                "filePath TEXT" +
+                ")";
         db.execSQL(CREATE_EVENTS_TABLE);
     }
 
@@ -40,18 +42,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
         onCreate(db);
     }
-    public boolean addEvent(String title, String description, String date) {
+    public boolean addEvent(String title, String description, String date, String filePath) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put("title", title);
-        contentValues.put("description", description);
-        contentValues.put("date", date);
+        contentValues.put(COLUMN_TITLE, title);
+        contentValues.put(COLUMN_DESCRIPTION, description);
+        contentValues.put(COLUMN_DATE, date);
+        contentValues.put("filePath", filePath); // Store the file path
 
-        long result = db.insert("events", null, contentValues);
+        long result = db.insert(TABLE_EVENTS, null, contentValues);
         db.close();
 
         return result != -1; // Return true if the insertion was successful
     }
+
 
     public List<Event> getAllEvents() {
         List<Event> eventList = new ArrayList<>();
@@ -64,8 +68,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE));
                 String description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION));
                 String eventDate = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
+                String filePath = cursor.getString(cursor.getColumnIndexOrThrow("filePath"));
 
-                Event event = new Event(id ,title, description, eventDate);
+                Event event = new Event(id ,title, description, eventDate,filePath);
                 eventList.add(event);
             } while (cursor.moveToNext());
         }
@@ -109,15 +114,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<Event> getEventsByDate(String date) {
         List<Event> eventList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT * FROM events WHERE date = ?";
+        String query = "SELECT * FROM " + TABLE_EVENTS + " WHERE date = ?";
         Cursor cursor = db.rawQuery(query, new String[]{date});
 
         if (cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id")); // Get the id
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
                 String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
                 String description = cursor.getString(cursor.getColumnIndexOrThrow("description"));
-                Event event = new Event(id, title, description, date);
+                String filePath = cursor.getString(cursor.getColumnIndexOrThrow("filePath")); // Get the file path
+                Event event = new Event(id, title, description, date, filePath); // Pass the file path to Event object
                 eventList.add(event);
             } while (cursor.moveToNext());
         }
@@ -126,5 +132,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return eventList;
     }
+
 }
 
