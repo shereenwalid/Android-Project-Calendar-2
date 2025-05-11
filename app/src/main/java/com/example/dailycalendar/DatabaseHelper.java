@@ -133,5 +133,69 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return eventList;
     }
 
-}
+    public List<Event> searchEventsByTitle(String searchQuery, String date) {
+        List<Event> eventList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_EVENTS;
+        List<String> selectionArgs = new ArrayList<>();
 
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+            query += " WHERE title LIKE ?";
+            String likeQuery = "%" + searchQuery + "%";
+            selectionArgs.add(likeQuery);
+        }
+
+        if (date != null && !date.trim().isEmpty()) {
+            query += selectionArgs.isEmpty() ? " WHERE date = ?" : " AND date = ?";
+            selectionArgs.add(date);
+        }
+
+        Cursor cursor = db.rawQuery(query, selectionArgs.toArray(new String[0]));
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow("id"));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow("title"));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow("description"));
+                String eventDate = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+                String filePath = cursor.getString(cursor.getColumnIndexOrThrow("filePath"));
+                Event event = new Event(id, title, description, eventDate, filePath);
+                eventList.add(event);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+
+        return eventList;
+    }
+
+    public List<Event> searchEvents(String query) {
+        List<Event> eventList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String searchQuery = "%" + query + "%";
+        Cursor cursor = db.rawQuery(
+                "SELECT * FROM " + TABLE_EVENTS +
+                        " WHERE " + COLUMN_TITLE + " LIKE ? OR " +
+                        COLUMN_DESCRIPTION + " LIKE ?",
+                new String[]{searchQuery, searchQuery}
+        );
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION));
+                String date = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE));
+                String filePath = cursor.getString(cursor.getColumnIndexOrThrow("filePath"));
+
+                eventList.add(new Event(id, title, description, date, filePath));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return eventList;
+    }
+
+
+}

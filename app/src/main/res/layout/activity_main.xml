@@ -32,11 +32,15 @@
         android:id="@+id/spinner_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:entries="@array/view_array"
-        android:padding="16dp"
-        android:layout_margin="16dp" />
+        android:padding="16dp" />
 
-
-
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:queryHint="Search events by title or description" />
 
 </LinearLayout>

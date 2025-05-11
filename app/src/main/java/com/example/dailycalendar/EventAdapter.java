@@ -20,6 +20,12 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         this.listener = listener;
     }
 
+    public void updateList(List<Event> newList) {
+        eventList.clear();
+        eventList.addAll(newList);
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -40,6 +46,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.eventTitle.setText(event.getTitle());
         holder.eventDescription.setText(event.getDescription());
         holder.eventDate.setText(event.getDate());
+        holder.eventFile.setText(event.getFilePath());
 
         holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(event));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(event));
@@ -50,7 +57,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
 
 
     class EventViewHolder extends RecyclerView.ViewHolder {
-        TextView eventTitle, eventDescription, eventDate;
+        TextView eventTitle, eventDescription, eventDate, eventFile;
         Button btnUpdate, btnDelete;
 
         public EventViewHolder(View itemView) {
@@ -58,6 +65,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
             eventTitle = itemView.findViewById(R.id.tvEventTitle);
             eventDescription = itemView.findViewById(R.id.tvEventDescription);
             eventDate = itemView.findViewById(R.id.tvEventDate);
+            eventFile = itemView.findViewById(R.id.tvFileName);
             btnUpdate = itemView.findViewById(R.id.btnUpdate);
             btnDelete = itemView.findViewById(R.id.btnDelete);
         }

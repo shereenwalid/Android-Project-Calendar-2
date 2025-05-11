@@ -12,7 +12,7 @@ import android.provider.OpenableColumns;
 import android.view.View;
 import android.widget.*;
 
-import androidx.annotation.NonNull;
+        import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -21,10 +21,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.*;
 
-import java.util.ArrayList;
+        import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import androidx.appcompat.widget.SearchView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,14 +37,19 @@ public class MainActivity extends AppCompatActivity {
     private String currentDate;
     private static final int REQUEST_CODE_ATTACHMENT = 1;
     private static final int REQUEST_CODE_POST_NOTIFICATIONS = 101;
+    private static final int REQUEST_CODE_STORAGE_PERMISSIONS = 102;
+    private RecyclerView carouselRecyclerView;
+    private CarouselAdapter carouselAdapter;
+    private List<CarouselItem> carouselItemList;
+    private TextView currentTvFileName;
+
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestNotificationPermission(); // Request notification permission for Android 13+
 
-        setContentView(R.layout.activitycalendar2); // Default layout
-
+        // Initialize these before setContentView
         eventList = new ArrayList<>();
         dbHelper = new DatabaseHelper(this);
 
@@ -61,17 +67,28 @@ public class MainActivity extends AppCompatActivity {
             setupCalendarSelection();
             setupGoBackButtonInActivityCalendar();
         } else {
+            // Default case - main activity with search
             setContentView(R.layout.activity_main);
-            setupMainActivityViews();
+            setupMainActivityViews(); // This includes search setup
         }
-    }
 
+        requestNotificationPermission();
+        requestStoragePermissions();
+    }
     private void setupMainActivityViews() {
         selectedDate = findViewById(R.id.selectedDate);
+        searchView = findViewById(R.id.searchView);
+
+        // Add null check
+        if (searchView == null) {
+            Toast.makeText(this, "SearchView not found in layout", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         currentDate = getIntent().getStringExtra("selectedDate");
 
         if (currentDate == null) {
-            currentDate = "2024-08-25";  // Default date
+            currentDate = "2025-08-25";
         }
         selectedDate.setText(currentDate);
 
@@ -100,6 +117,32 @@ public class MainActivity extends AppCompatActivity {
             Intent calendarIntent = new Intent(MainActivity.this, CalendarActivity.class);
             startActivity(calendarIntent);
         });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterEvents(newText);
+                return true;
+            }
+        });
+    }
+
+    private void filterEvents(String query) {
+        List<Event> filteredList;
+        if (query.isEmpty()) {
+            filteredList = dbHelper.getEventsByDate(currentDate);
+        } else {
+            filteredList = dbHelper.searchEventsByTitle(query, currentDate);
+        }
+
+        eventList.clear();
+        eventList.addAll(filteredList);
+        adapter.notifyDataSetChanged();
     }
 
     private void showUpdateDialog(Event event) {
@@ -212,7 +255,6 @@ public class MainActivity extends AppCompatActivity {
 
                         WorkManager.getInstance(this).enqueue(reminderRequest);
                     }
-
                 } else {
                     Toast.makeText(this, "Error Adding Event", Toast.LENGTH_SHORT).show();
                 }
@@ -252,9 +294,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openFilePicker(TextView tvFileName) {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        currentTvFileName = tvFileName; // Store dialog's TextView reference
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        startActivityForResult(intent, REQUEST_CODE_ATTACHMENT);
+        try {
+            startActivityForResult(intent, REQUEST_CODE_ATTACHMENT);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error opening file picker", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -263,34 +312,87 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_ATTACHMENT && resultCode == RESULT_OK && data != null) {
             Uri selectedUri = data.getData();
             if (selectedUri != null) {
+                // Persist URI permissions
+                try {
+                    getContentResolver().takePersistableUriPermission(
+                            selectedUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    );
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 String fileName = getFileNameFromUri(selectedUri);
-                TextView tvFileName = findViewById(R.id.tvFileName);
-                tvFileName.setText("Selected file: " + fileName);
+                if (fileName != null && currentTvFileName != null) {
+                    currentTvFileName.setText("Selected file: " + fileName);
+                } else {
+                    Toast.makeText(this, "Error: Could not retrieve file name", Toast.LENGTH_SHORT).show();
+                }
             }
         }
+        currentTvFileName = null; // Clear reference
     }
 
     private String getFileNameFromUri(Uri uri) {
         String fileName = null;
-        if (uri != null) {
-            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (uri == null) return null;
+
+        ContentResolver contentResolver = getContentResolver();
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(uri, null, null, null, null);
             if (cursor != null && cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                fileName = cursor.getString(columnIndex);
+                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (nameIndex != -1) {
+                    fileName = cursor.getString(nameIndex);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) {
                 cursor.close();
             }
         }
-        return fileName;
+        return fileName != null ? fileName : "Unknown file";
     }
 
     private void requestNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
                         this,
-                        new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
                         REQUEST_CODE_POST_NOTIFICATIONS
+                );
+            }
+        }
+    }
+
+    private void requestStoragePermissions() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+            // Android 10 and below
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{
+                                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        },
+                        REQUEST_CODE_STORAGE_PERMISSIONS
+                );
+            }
+        } else if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            // Android 11-12
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_CODE_STORAGE_PERMISSIONS
                 );
             }
         }
@@ -305,6 +407,13 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show();
             }
+        } else if (requestCode == REQUEST_CODE_STORAGE_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Storage permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Storage permission denied", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
+

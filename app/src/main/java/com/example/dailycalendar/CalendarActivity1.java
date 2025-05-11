@@ -28,7 +28,7 @@ public class CalendarActivity1 extends AppCompatActivity {
             setContentView(R.layout.activity_calendar);
         } else {
             // Set a default layout or handle error case
-            setContentView(R.layout.activity_calendar); // Default layout
+            setContentView(R.layout.activity_calendar);
         }
 
         // Initialize layout elements

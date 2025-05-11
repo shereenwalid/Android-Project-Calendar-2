@@ -1,48 +1,97 @@
 package com.example.dailycalendar;
 
+import android.Manifest;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.widget.Button;
-import android.view.View;
-import android.widget.PopupMenu;
-import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
+import android.provider.OpenableColumns;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CalendarView;
+import android.widget.EditText;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
+import com.google.android.material.carousel.CarouselLayoutManager;
+import com.google.android.material.carousel.CarouselSnapHelper;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class CalendarActivity extends AppCompatActivity {
 
     private Button popupButton;
-    private Button backHomeButton;
     private TextView welcomeTextView;
     private TextView instructionsTextView;
     private TextView eventTextView;
     private boolean isUsingCalendar2Layout;
+    private RecyclerView carouselRecyclerView;
+    private static final int REQUEST_CODE_STORAGE_PERMISSIONS = 102;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activitycalendar2);
 
-        // Initialize layout
+        // Initialize views
         welcomeTextView = findViewById(R.id.welcome_text_view);
         instructionsTextView = findViewById(R.id.instructions_text_view);
         popupButton = findViewById(R.id.popup_button);
-        eventTextView = findViewById(R.id.event_text_view); // Initialize eventTextView
+        eventTextView = findViewById(R.id.event_text_view);
+        carouselRecyclerView = findViewById(R.id.carousel_recycler_view);
 
-        // Setup popup button
+        // Set up popup button
         setupPopupButton(popupButton);
-
-        // Register the context menu for eventTextView
         registerForContextMenu(eventTextView);
-
-        // Default to activity_calendar2.xml
         isUsingCalendar2Layout = true;
+
+        // Set up carousel
+        setupCarousel();
+    }
+
+    private void setupCarousel() {
+        // Sample data (replace with your actual event data)
+        List<CarouselItem> carouselItems = new ArrayList<>();
+        carouselItems.add(new CarouselItem("Meeting", R.drawable.img1));
+
+        carouselItems.add(new CarouselItem("Meeting", R.drawable.img2));
+
+        carouselItems.add(new CarouselItem("Meeting", R.drawable.img3));
+
+        // Set LayoutManager
+        CarouselLayoutManager layoutManager = new CarouselLayoutManager();
+        carouselRecyclerView.setLayoutManager(layoutManager);
+
+        // Attach SnapHelper for smooth snapping
+        CarouselSnapHelper snapHelper = new CarouselSnapHelper();
+        snapHelper.attachToRecyclerView(carouselRecyclerView);
+
+        // Set Adapter
+        CarouselAdapter adapter = new CarouselAdapter(carouselItems);
+        carouselRecyclerView.setAdapter(adapter);
     }
 
     private void setupPopupButton(Button popupButton) {
@@ -79,7 +128,7 @@ public class CalendarActivity extends AppCompatActivity {
 
     private void switchToCalendarLayout(String layout) {
         Intent intent = new Intent(CalendarActivity.this, CalendarActivity1.class);
-        intent.putExtra("layout", layout); // Pass the layout name
+        intent.putExtra("layout", layout);
         startActivity(intent);
     }
 
@@ -92,13 +141,31 @@ public class CalendarActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+//        int itemId = item.getItemId();
+//
+//        if (itemId == R.id.action_add_event) {
+//            navigateToLayout("dialog_add_event");
+//            return true;
+//        } else if (itemId == R.id.action_view_events) {
+//            navigateToLayout("item_event");
+//            return true;
+//        } else if (itemId == R.id.action_settings) {
+//            navigateToLayout("activity_calendar");
+//            return true;
+//        } else {
+//            return super.onOptionsItemSelected(item);
+//        }
+
+
         int itemId = item.getItemId();
 
         if (itemId == R.id.action_add_event) {
             navigateToLayout("dialog_add_event");
             return true;
         } else if (itemId == R.id.action_view_events) {
-            navigateToLayout("item_event");
+            // Changed to navigate to the new ViewEventsActivity
+            Intent intent = new Intent(this, ViewEventsActivity.class);
+            startActivity(intent);
             return true;
         } else if (itemId == R.id.action_settings) {
             navigateToLayout("activity_calendar");
@@ -109,7 +176,7 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         getMenuInflater().inflate(R.menu.context_menu_calendar, menu);
     }
@@ -127,3 +194,4 @@ public class CalendarActivity extends AppCompatActivity {
         }
     }
 }
+
