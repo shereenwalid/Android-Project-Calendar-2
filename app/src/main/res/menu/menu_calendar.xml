@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -7,12 +6,17 @@
         android:icon="@drawable/ic_launcher_foreground"
         android:title="Add Event"
         app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_view_events"
         android:icon="@drawable/ic_launcher_background"
-        android:title="View Events"
+        android:title="Events"
         app:showAsAction="never">
+
         <menu>
+            <item
+                android:id="@+id/menu_view_event"
+                android:title="View Event" />
             <item
                 android:id="@+id/action_filter_events"
                 android:title="Filter Events" />
@@ -21,10 +25,10 @@
                 android:title="Sort Events" />
         </menu>
     </item>
+
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_launcher_foreground"
         android:title="Calendar"
         app:showAsAction="never" />
-
 </menu>

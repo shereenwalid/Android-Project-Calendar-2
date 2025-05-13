@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Add this line for notifications permission -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -19,20 +18,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar"
         tools:targetApi="31">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+
+        <!-- REMOVE launcher intent filter from MainActivity -->
+        <activity android:name=".MainActivity" android:exported="true" />
+
+        <!-- MAKE CalendarActivity the launcher -->
+        <activity android:name=".CalendarActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CalendarActivity" />
-        <activity android:name=".ViewEventsActivity"
+
+        <!-- Other Activities -->
+        <activity
+            android:name=".ViewEventsActivity"
             android:label="All Events"
-            android:parentActivityName=".CalendarActivity">
-        </activity>
+            android:parentActivityName=".CalendarActivity" />
+
+        <activity
+            android:name=".UpdateEventActivity"
+            android:label="Update Events"
+            android:parentActivityName=".CalendarActivity" />
     </application>
 
 </manifest>

@@ -45,14 +45,6 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/btn_back_home_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Go to Home"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"/>
-
-    <Button
         android:id="@+id/btnDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

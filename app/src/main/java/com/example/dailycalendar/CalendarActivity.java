@@ -108,7 +108,9 @@ public class CalendarActivity extends AppCompatActivity {
                 navigateToLayout("activity_main");
                 return true;
             } else if (itemId == R.id.popup_view_event) {
-                navigateToLayout("item_event");
+                Intent intent = new Intent(CalendarActivity.this, ViewEventsActivity.class);
+                startActivity(intent);
+
                 return true;
             } else if (itemId == R.id.action_settings) {
                 switchToCalendarLayout("activity_calendar");
@@ -139,41 +141,39 @@ public class CalendarActivity extends AppCompatActivity {
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        int itemId = item.getItemId();
-//
-//        if (itemId == R.id.action_add_event) {
-//            navigateToLayout("dialog_add_event");
-//            return true;
-//        } else if (itemId == R.id.action_view_events) {
-//            navigateToLayout("item_event");
-//            return true;
-//        } else if (itemId == R.id.action_settings) {
-//            navigateToLayout("activity_calendar");
-//            return true;
-//        } else {
-//            return super.onOptionsItemSelected(item);
-//        }
-
-
         int itemId = item.getItemId();
 
         if (itemId == R.id.action_add_event) {
             navigateToLayout("dialog_add_event");
             return true;
-        } else if (itemId == R.id.action_view_events) {
-            // Changed to navigate to the new ViewEventsActivity
+
+        } else if (itemId == R.id.menu_view_event) {
+            // ✅ Go to ViewEventsActivity (this shows your layout)
             Intent intent = new Intent(this, ViewEventsActivity.class);
             startActivity(intent);
             return true;
+
+        } else if (itemId == R.id.action_filter_events) {
+            Toast.makeText(this, "Filter Events clicked", Toast.LENGTH_SHORT).show();
+            return true;
+
+        } else if (itemId == R.id.action_sort_events) {
+            Toast.makeText(this, "Sort Events clicked", Toast.LENGTH_SHORT).show();
+            return true;
+
         } else if (itemId == R.id.action_settings) {
             navigateToLayout("activity_calendar");
             return true;
+
         } else {
             return super.onOptionsItemSelected(item);
         }
     }
+
+
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {

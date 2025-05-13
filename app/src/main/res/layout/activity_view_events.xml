@@ -19,6 +19,15 @@
         android:queryHint="Search events..."
         android:layout_marginBottom="8dp"/>
 
+    <Button
+        android:id="@+id/goToHomeButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="1dp"
+        android:layout_marginBottom="8dp"
+        android:text="Go to Home" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/eventsRecyclerView"
         android:layout_width="match_parent"

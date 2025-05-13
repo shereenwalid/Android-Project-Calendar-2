@@ -25,7 +25,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         eventList.addAll(newList);
         notifyDataSetChanged();
     }
-
+    
 
     @Override
     public EventViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -51,9 +51,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.EventViewHol
         holder.btnUpdate.setOnClickListener(v -> listener.onUpdate(event));
         holder.btnDelete.setOnClickListener(v -> listener.onDelete(event));
     }
-
-
-
 
 
     class EventViewHolder extends RecyclerView.ViewHolder {
