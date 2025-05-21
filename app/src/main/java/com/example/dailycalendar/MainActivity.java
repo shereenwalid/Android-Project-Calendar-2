@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
             setupGoBackButtonInItemEvent();
         } else if ("activity_calendar".equals(layout)) {
-            setContentView(R.layout.activity_calendar);
+            setContentView(R.layout.activity_calendar33);
             setupCalendarSelection();
             setupGoBackButtonInActivityCalendar();
         } else {
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         currentDate = getIntent().getStringExtra("selectedDate");
 
         if (currentDate == null) {
-            currentDate = "2025-08-25";
+            currentDate = "2025-05-22";
         }
         selectedDate.setText(currentDate);
 

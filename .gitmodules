@@ -1,0 +1,6 @@
+[submodule "MyAndroidComponentProject"]
+	path = MyAndroidComponentProject
+	url = https://github.com/basmalahassan/MyAndroidComponentProject.git
+[submodule "external-resources"]
+	path = external-resources
+	url = https://github.com/basmalahassan/MyAndroidComponentProject.git

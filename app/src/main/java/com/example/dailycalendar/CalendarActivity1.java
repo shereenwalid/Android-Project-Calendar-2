@@ -25,10 +25,10 @@ public class CalendarActivity1 extends AppCompatActivity {
         String layout = intent.getStringExtra("layout");
 
         if ("activity_calendar".equals(layout)) {
-            setContentView(R.layout.activity_calendar);
+            setContentView(R.layout.activity_calendar33);
         } else {
             // Set a default layout or handle error case
-            setContentView(R.layout.activity_calendar);
+            setContentView(R.layout.activity_calendar33);
         }
 
         // Initialize layout elements
